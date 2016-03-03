@@ -19,7 +19,7 @@ import sys
 import re
 import string
 import argparse
-
+import warnings
 
 def write_stderr(msg):
     sys.stderr.write(msg + '\n')
@@ -331,7 +331,7 @@ class bro_data_intel_field_values:
 
     def default(self, t):
         ret = (bro_intel_indicator_return.WARNING, 'Invalid - %s' % (t))
-        warning("Running default handler for: %s" % (t))
+        warnings.warn("Running default handler for: %s" % (t))
         if self.__is_ignore_field(t):
             ret = (bro_intel_indicator_return.OKAY, None)
         elif len(t) > 1 and self.__verify_chars(t):
@@ -449,7 +449,7 @@ class bro_intel_feed_verifier:
                     ret = True
                     self.__feed_header_found = True
                 else:
-                    warning("Invalid field separator found in header. Must be a tab.")
+                    warnings.warn("Invalid field separator found in header. Must be a tab.")
             else:
                 warning_line(index, "Duplicate header found")
         return ret
