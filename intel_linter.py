@@ -3,20 +3,22 @@
 # PacketSled - Bro Intel Linter
 #
 # WHEN          WHAT                                               WHO
-# 3-4-2015      Initial development                                Aaron Eppert
-# 8-24-2015     Explicitly verify single character fields          Aaron Eppert
-# 8-24-2015     GPL and pushed to GitHub                           Aaron Eppert
-# 8-25-2015     Small cleanups and proper exit codes for using
+# 03-04-2015      Initial development                                Aaron Eppert
+# 08-24-2015     Explicitly verify single character fields          Aaron Eppert
+# 08-24-2015     GPL and pushed to GitHub                           Aaron Eppert
+# 08-25-2015     Small cleanups and proper exit codes for using
 #               as a git pre-commit hook                           Aaron Eppert
-# 9-1-2015      Added column-based type verifications              Aaron Eppert
-# 9-25-2015     Verify printable characters and escape in error    Aaron Eppert
-# 10-7-2015     Added --psled and --warn-only options              Aaron Eppert
-# 10-8-2015     Additional details - WARNING vs ERROR              Aaron Eppert
+# 09-01-2015      Added column-based type verifications              Aaron Eppert
+# 09-25-2015     Verify printable characters and escape in error    Aaron Eppert
+# 10-07-2015     Added --psled and --warn-only options              Aaron Eppert
+# 10-08-2015     Additional details - WARNING vs ERROR              Aaron Eppert
+# 03-03-2016     Conversion to python3                              Peter McKay
 #
+
 import sys
 import re
 import string
-from optparse import OptionParser
+import argparse
 
 
 def write_stderr(msg):
@@ -264,7 +266,7 @@ class bro_data_intel_field_values:
         ret = (bro_intel_indicator_return.ERROR, 'Invalid confidence - %s - Needs to be 1-100' % (str(t)))
         try:
             t_int = int(t)
-            if isinstance(t_int, (int, long)) and (t_int > 0 and t_int < 100):
+            if isinstance(t_int, int) and (t_int > 0 and t_int < 100):
                 ret = (bro_intel_indicator_return.OKAY, None)
         except ValueError:
             ret = (bro_intel_indicator_return.ERROR, 'Invalid confidence - %s - Needs to be 1-100' % (str(t)))
@@ -306,7 +308,7 @@ class bro_data_intel_field_values:
         ret = (bro_intel_indicator_return.ERROR, 'Invalid severity - %s (valid: 1-10)' % (t))
         try:
             t_int = int(t)
-            if isinstance(t_int, (int, long)) and (t_int > 0 and t_int < 10):
+            if isinstance(t_int, int) and (t_int > 0 and t_int < 10):
                 ret = (bro_intel_indicator_return.OKAY, None)
         except ValueError:
             ret = (bro_intel_indicator_return.ERROR, 'Invalid severity - %s  (valid: 1-10)' % (t))
@@ -541,17 +543,17 @@ class bro_intel_feed_verifier:
 # main()
 ###############################################################################
 def main():
-    parser = OptionParser()
-    parser.add_option('-f', '--file', dest='feed_file', help='Bro Intel Feed to Verify')
-    parser.add_option('--psled', action='store_true', dest='psled', help='Verify Intel meets PacketSled requirements')
-    parser.add_option('--warn-only', action='store_true', dest='warn_only', help='Warn ONLY on errors, continue processing and report')
-    (options, args) = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Check Bro Intel feed')
+    parser.add_argument('-f', '--file', dest='feed_file', help='Bro Intel Feed to Verify')
+    parser.add_argument('--psled', action='store_true', dest='psled', help='Verify Intel meets PacketSled requirements')
+    parser.add_argument('--warn-only', action='store_true', dest='warn_only', help='Warn ONLY on errors, continue processing and report')
+    args = parser.parse_args()
 
     if len(sys.argv) < 2:
         parser.print_help()
         sys.exit(1)
 
-    bifv = bro_intel_feed_verifier(options)
+    bifv = bro_intel_feed_verifier(args)
     bifv.verify()
 
 
