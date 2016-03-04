@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # PacketSled - Bro Intel Linter
 #
@@ -12,19 +12,17 @@
 # 09-25-2015     Verify printable characters and escape in error    Aaron Eppert
 # 10-07-2015     Added --psled and --warn-only options              Aaron Eppert
 # 10-08-2015     Additional details - WARNING vs ERROR              Aaron Eppert
-# 03-03-2016     Conversion to python3                              Peter McKay
+# 03-03-2016     Conversion to python3, killed warning()            Peter McKay
 #
 
 import sys
 import re
 import string
 import argparse
-import warnings
 
 def write_stderr(msg):
     sys.stderr.write(msg + '\n')
-
-
+    
 def warning_line(line, *objs):
     out = 'WARNING: Line %d - ' % (int(line)+1)
     for o in objs:
@@ -331,7 +329,7 @@ class bro_data_intel_field_values:
 
     def default(self, t):
         ret = (bro_intel_indicator_return.WARNING, 'Invalid - %s' % (t))
-        warnings.warn("Running default handler for: %s" % (t))
+        write_stderr("Running default handler for: %s" % (t))
         if self.__is_ignore_field(t):
             ret = (bro_intel_indicator_return.OKAY, None)
         elif len(t) > 1 and self.__verify_chars(t):
@@ -449,7 +447,7 @@ class bro_intel_feed_verifier:
                     ret = True
                     self.__feed_header_found = True
                 else:
-                    warnings.warn("Invalid field separator found in header. Must be a tab.")
+                    write_stderr("Invalid field separator found in header. Must be a tab.")
             else:
                 warning_line(index, "Duplicate header found")
         return ret
